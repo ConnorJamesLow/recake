@@ -1,10 +1,7 @@
-import json
 from os import path, makedirs
-from os.path import dirname
 from shutil import copytree, copy2 as copy_file
-from random import randint, shuffle
+from random import randint
 from datetime import datetime
-import shutil
 
 content_path = path.expanduser(path.join('~', '.remakes/'))
 
@@ -64,3 +61,12 @@ def file_exists(src):
 
 def get_jpath():
     return path.expanduser(path.join('~', '.remakes\\remakes.json'))
+
+def truncate(s: str, m: int):
+    if len(s) < m:
+        return s
+    
+    if m < 25:
+        return f'...{s[:(m - 3)]}'
+
+    return f'{s[:(m - 25)]}...{s[(len(s) - 22):]}'

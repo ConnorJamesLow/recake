@@ -1,8 +1,8 @@
 from os import remove, getcwd
 import pyperclip
 from commands.util.jef import subjectify, Observer
-from commands.util.util import ensure_attr, randint, conseq, file_exists, copy_source, get_jpath
-from shutil import rmtree
+from commands.util.util import ensure_attr, gen_id, randint, conseq, file_exists, copy_source, get_jpath
+from shutil import Error, rmtree
 from os.path import exists, isdir, isfile, join, expanduser
 from datetime import datetime
 
@@ -164,3 +164,58 @@ def find_source(attr, value):
     if not el:
         return None
     return el
+
+
+def load(id: str = None, name: str = None) -> str:
+    """
+    Find the state of the source using the name or the id.
+    """
+    if not id or name:
+        return False
+    #  Load the state file
+    json = subjectify(get_jpath())
+
+    # Load state from remakes.json file
+    ensure_attr(json, 'sources', [])
+
+    # Try to find the state by Id
+    state: Observer = next(
+        (s for s in json.sources if s["id"] == id), None)
+    if not state:
+        # If not found, try again by name
+        state = next(
+            (s for s in json.sources if s["name"] == name), None)
+
+    # If no state found, return False
+    return state
+
+
+def add_source(src: str = None, name: str = None, _type: str = None):
+    """
+    Create local copy of the source in the `.remakes/` cache.
+    """
+    if not src:
+        raise Exception('Must include the src parameter')
+
+    json = subjectify(get_jpath())
+    ensure_attr(json, 'sources', [])
+
+    # Check for existing source.
+    id = gen_id()
+    existing = next(
+        (s for s in enumerate(json.sources) if s["name"] == name),
+        (-1, None))
+    if existing:
+        raise Exception(f'Cannot add source: one already exists with name "{name}".')
+
+    # Generate a record for the source and copy it to the remakes folder.
+    source = {
+        "id": id,
+        "name": name,
+        "type": _type,
+        "source": src,
+        "remake": f'.remakes/{id}'
+    }
+    json.sources += [source]
+    copy_source(src, f'.remakes/{id}')
+
