@@ -26,5 +26,5 @@ Remake is still in early stages of development. Here are some things that could 
  - [ ] `list source/clip` command to see all cached items.
  - [ ] Ability to add internet/github sources.
  - [ ] Remake script files to run on copy and select senarios.
- - [ ] `update source/clip` commands.
+ - [ ] `update/delete source/clip` commands.
  - [ ] Better console messages (maybe add some color?)
