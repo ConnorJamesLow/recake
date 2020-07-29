@@ -13,10 +13,15 @@ remake copy project C:/source/new-project
 ```
 
 
-## Features
- - `add source`: cache code files and directories for later.
- - `copy`: copy a cached source to a new destination.
+## Commands
+ - `add`: Cache code files and directories for later.
  - `clip`: Add the contents of a stored file to the clipboard.
+ - `copy`: Copy a cached source to a new destination.
+ - `ls`: List added code sources.
+ - `open`: Open a source in file explorer or the default editor.
+ - `rm`: Delete an existing source.
+ - `update`: cache code files and directories for later.
+
 
 ## Wishlist / TODO  
 Remake is still in early stages of development. Here are some things that could make it better:
@@ -28,3 +33,4 @@ Remake is still in early stages of development. Here are some things that could 
  - [ ] Remake script files to run on copy and select senarios.
  - [x] ~~`update/delete source/clip` commands.~~ implemented as `update` and `rm`.
  - [ ] Better console messages (maybe add some color?)
+ - [ ] Configure defaults (`ls --truncate`, `open --cached`, etc.)
