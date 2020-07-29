@@ -1,9 +1,13 @@
-from os import path, makedirs
+import re
+from os import path, makedirs, getcwd
 from shutil import copytree, copy2 as copy_file
 from random import randint
 from datetime import datetime
 
+import click
+
 content_path = path.expanduser(path.join('~', '.remakes/'))
+
 
 def conseq(cond, true, false):
     """
@@ -42,7 +46,6 @@ def copy_source(src, dest):
     """
     print(f'copy_source: {src} -> {dest}')
     dest = path.expanduser(path.join('~', dest))
-    print(f'dest: {dest}')
     if path.isdir(src):
         if path.exists(dest):
             raise Exception('Could not copy. Please try again.')
@@ -53,20 +56,40 @@ def copy_source(src, dest):
             makedirs(content_path)
         p = copy_file(src, dest)
         print(p)
-        
-    
+
+
+def calculate_path(src):
+    if path.exists(src):
+        return src
+    if re.search('[.]remakes/', src):
+        return path.expanduser(path.join('~', src))
+
+    return path.join(getcwd(), src)
+
+
 def file_exists(src):
-    print(f'src:{src} exists:{path.exists(src)} isfile:{path.isfile(src)}')
     return path.exists(src) and path.isfile(src)
+
 
 def get_jpath():
     return path.expanduser(path.join('~', '.remakes\\remakes.json'))
 
+
 def truncate(s: str, m: int):
     if len(s) < m:
         return s
-    
+
     if m < 25:
         return f'...{s[:(m - 3)]}'
 
     return f'{s[:(m - 25)]}...{s[(len(s) - 22):]}'
+
+def fin(message):
+    click.secho(message + '\n', fg="green")
+
+def err(message):
+    click.secho(message + '\n', fg="red")
+
+def err(message):
+    click.secho(message + '\n', fg="yellow")
+

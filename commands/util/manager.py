@@ -1,3 +1,4 @@
+import click
 from commands.util.util import truncate
 from os import getcwd, path
 from typing import List
@@ -18,17 +19,20 @@ class Manager:
         Find the state of the source using the name or the id.
         """
         json = self.__json
-        if not rid or name:
+
+        if not (rid or name):
             return None
 
         # Try to find the state by Id
         state: Observer = next(
-            (s for s in json.sources if s["id"] == rid), None)
+            (s for s in json.sources if s["id"] == rid),
+            None)
 
         if not state:
             # If not found, try again by name
             state = next(
-                (s for s in json.sources if s["name"] == name), None)
+                (s for s in json.sources if s["name"] == name),
+                None)
 
         # If no state found, return False
         return state
@@ -76,7 +80,6 @@ class Manager:
         src: str = util.conseq(no_cache, source["source"], source["remake"])
         ours = path.expanduser(path.join('~', src))
         dest = path.join(getcwd(), dest)
-        print(f'dest: {dest}, ours: {ours}')
         if not path.exists(ours):
             raise Exception(
                 'Invalid source configuration. Check remakes.json for errors.')
@@ -90,59 +93,61 @@ class Manager:
         if not source:
             raise Exception('Source not found')
 
-        src = util.conseq(no_cache, source["source"], source["remake"])
+        src = util.calculate_path(util.conseq(
+            no_cache, source["source"], source["remake"]))
 
-        print(f'clip src:{src}')
         if not util.file_exists(src):
             return False
         with open(src, 'r') as f:
             pyperclip.copy(f.read())
-            print('copied!')
         return True
 
-    def list(self, truncate = False):
-        namel = 0
-        sourcel = 0
-        ridl = 0
-
+    def ls(self, truncate: bool = False, *args):
+        """
+        List remake sources.
+        """
         items = iter(self.__json.sources)
-        res = []
+        rows = []
+        lengths = {}
+
         i = next(items, None)
         while i != None:
-            name: str = i["name"]
-            rid: str = i["id"]
-            source: str = f'{util.conseq(truncate, util.truncate(i["source"], 40), i["source"])}  '
-
-            if not truncate:
-                if i["type"] == 'local':
-                    if path.exists(i["source"]):
-                        source += util.conseq(
-                            path.isfile(i["source"]),
-                            '(local - file)', '(local - directory)')
-                    else:
-                        source += '(local - removed)'
-                else:
-                    source += f'({i["type"]})'
-                # Add items
-            res += [[name, rid, source]]
-
-            # Get maxlength
-            if len(name) > namel:
-                namel = len(name)
-            if len(source) > sourcel:
-                sourcel = len(source)
-            if len(rid) > ridl:
-                ridl = len(rid)
-
-            # Next item in the iterable
+            dict = {}
+            for p in args:
+                if p not in i.keys():
+                    return f'Error: "{p}" is not an attribute of $.sources.'
+                val = util.conseq(truncate, util.truncate(i[p], 33), i[p])
+                dict[p] = val
+                if p not in lengths.keys() or len(val) > lengths[p]:
+                    lengths[p] = len(val)
+            rows += [dict]
             i = next(items, None)
 
-        mapped = map(
-            lambda i: f'{i[0]}{" " * (namel - len(i[0]))}    {i[1]}{" " * (ridl - len(i[1]))}    {i[2]}{" " * (sourcel - len(i[2]))}',
-            res)
-        rows = list(mapped)
+        # Add headers
+        res = ['']
+        res += [(' ' * 4).join(map(lambda k: k +
+                                   (' ' * (lengths[k] - len(k))), args))]
 
-        return f'''
-NAME{" " * (namel - 4)}    ID{" " * (ridl - 2)}    SOURCE{" " * (sourcel - 6)}
-{"-" * namel}    {"-" * ridl}    {"-" * sourcel}
-''' + ("\n".join(rows)) + '\n'
+        # Add divider line
+        res += [(' ' * 4).join(map(lambda k: '-' * (lengths[k]), args))]
+        # Add rows:
+        for r in rows:
+            res += [(' ' * 4).join(map(lambda k: r[k] +
+                                       (' ' * (lengths[k] - len(r[k]))), args))]
+
+        return '\n'.join(res) + '\n'
+
+    def open(self, noi: str = None, no_cache: bool = False):
+        """
+        Open a source in an editor or the fs.
+
+        noi - name or id
+        """
+        source = self.load(noi, noi)
+        if not source:
+            raise Exception(
+                f'Not found. "{noi}" does not match any source ids or names.')
+
+        src = util.calculate_path(
+            util.conseq(no_cache, source["source"], source["remake"]))
+        return click.launch(src)

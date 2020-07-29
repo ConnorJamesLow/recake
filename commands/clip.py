@@ -13,5 +13,6 @@ def command(id: str = '', no_cache: bool = False):
     """
     Copy a single-file source to the clipboard. ID can be either the name or the generated id of the source.
     """
-    Source(name=id, id=id).clip(no_cache)
+    # Source(name=id, id=id).clip(no_cache)
     Manager().clip(id, id)
+    click.echo(click.style('Copied!', fg='green'))
