@@ -1,4 +1,4 @@
-# recake
+# recake 🍰
 **REC**ord and rem**AKE**. A CLI tool for creating your own project templates and code snipits.  
 
 ## Usage
