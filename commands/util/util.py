@@ -1,6 +1,6 @@
 import re
-from os import path, makedirs, getcwd
-from shutil import copytree, copy2 as copy_file
+from os import path, makedirs, getcwd, remove
+from shutil import copytree, copy2 as copy_file, rmtree
 from random import randint
 from datetime import datetime
 
@@ -57,6 +57,16 @@ def copy_source(src, dest):
         p = copy_file(src, dest)
         print(p)
 
+def uncopy_source(src):
+    src = calculate_path(src)
+    if not path.exists(src):
+        raise Exception(
+            f'Not found. "{src}" is not a valid path.')
+    
+    if path.isfile(src):
+        remove(src)
+    else:
+        rmtree(src, ignore_errors = True)
 
 def calculate_path(src):
     if path.exists(src):
@@ -90,6 +100,6 @@ def fin(message):
 def err(message):
     click.secho(message + '\n', fg="red")
 
-def err(message):
+def warn(message):
     click.secho(message + '\n', fg="yellow")
 

@@ -1,7 +1,5 @@
 import click
-from commands.util.util import truncate
 from os import getcwd, path
-from typing import List
 from commands.util import util
 from commands.util.jef import subjectify, Observer
 import pyperclip
@@ -14,24 +12,24 @@ class Manager:
         # Load the state
         util.ensure_attr(self.__json, 'sources', [])
 
-    def load(self, rid: str = None, name: str = None):
+    def load(self, noi: str = None):
         """
         Find the state of the source using the name or the id.
         """
         json = self.__json
 
-        if not (rid or name):
+        if not noi:
             return None
 
         # Try to find the state by Id
         state: Observer = next(
-            (s for s in json.sources if s["id"] == rid),
+            (s for s in json.sources if s["id"] == noi),
             None)
 
         if not state:
             # If not found, try again by name
             state = next(
-                (s for s in json.sources if s["name"] == name),
+                (s for s in json.sources if s["name"] == noi),
                 None)
 
         # If no state found, return False
@@ -67,15 +65,37 @@ class Manager:
         json.sources += [source]
         util.copy_source(src, f'.remakes/{_id}')
 
-    def copy(self, dest: str, rid: str = None, name: str = None, no_cache: bool = False):
+    def update(self, noi: str): 
+        source = self.load(noi, noi)
+        if not source:
+            raise Exception(
+                f'Not found. "{noi}" does not match any source ids or names.')
+        util.copy_source(source["source"], source["remake"])
+
+    def delete(self, noi: str, only_cache: bool = False):
+        # Find source
+        source = self.load(noi)
+        if not source:
+            raise Exception(
+                f'Not found. "{noi}" does not match any source ids or names.')
+
+        # Delete cached files
+        util.uncopy_source(source["remake"])
+        if only_cache:
+            return
+
+        # Remove from list TODO
+        # self.__json.sources
+
+    def copy(self, dest: str, noi: str = None, no_cache: bool = False):
         """
         Create a copy of the source in a new directory.
         """
-        if not rid and not name:
+        if not noi:
             raise Exception(
                 'Must include an id or a name to identify a source.')
 
-        source = self.load(rid, name)
+        source = self.load(noi)
 
         src: str = util.conseq(no_cache, source["source"], source["remake"])
         ours = path.expanduser(path.join('~', src))
@@ -85,13 +105,14 @@ class Manager:
                 'Invalid source configuration. Check remakes.json for errors.')
         util.copy_source(ours, dest)
 
-    def clip(self, rid: str, name: str, no_cache: bool = False):
+    def clip(self, noi: str, no_cache: bool = False):
         """
         Copy source file contents to the clipboard.
         """
-        source = self.load(rid, name)
+        source = self.load(noi, noi)
         if not source:
-            raise Exception('Source not found')
+            raise Exception(
+                f'Not found. "{noi}" does not match any source ids or names.')
 
         src = util.calculate_path(util.conseq(
             no_cache, source["source"], source["remake"]))
@@ -137,7 +158,7 @@ class Manager:
 
         return '\n'.join(res) + '\n'
 
-    def open(self, noi: str = None, no_cache: bool = False):
+    def open(self, noi: str, no_cache: bool = False):
         """
         Open a source in an editor or the fs.
 

@@ -1,5 +1,4 @@
 import click
-from commands.util.source import Source
 from commands.util.manager import Manager
 
 
@@ -17,8 +16,10 @@ def command(truncate: bool, attrs):
         click.echo(Manager().ls(truncate, 'id', 'name', 'source'))
         return
 
-    if  '*' in attrs:
-        click.echo(Manager().ls(truncate, 'id', 'name', 'source', 'remake', 'type'))
+    if '*' in attrs:
+        m = Manager()
+        click.echo(
+            m.ls(truncate, 'id', 'name', 'source', 'remake', 'type'))
         return
     click.echo(Manager().ls(truncate, *attrs))
     # click.echo(remakes.ls(truncate))

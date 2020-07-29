@@ -1,16 +1,7 @@
 import click
-from commands.util.source import Source
+from commands.util.manager import Manager
 
-
-@click.group('add')
-def command():
-    """
-    Commands for adding sources/etc.
-    """
-    pass
-
-
-@command.command('source')
+@click.command('add')
 @click.argument('source')
 @click.option(
     '-n',
@@ -22,9 +13,9 @@ def command():
     help='The source type.',
     type=click.Choice(['local', 'web']),
     default='local')
-def source(source: str, name: str = '', source_type: str = 'local'):
+def command(source: str, name: str = '', source_type: str = 'local'):
     """
-    The entry function for the source command
+    Add a new source.
     """
-    s = Source(src = source, name = name, _type = source_type)
-    s.save()
+    m = Manager()
+    m.add(source, name, source_type)

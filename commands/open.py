@@ -1,8 +1,6 @@
 from commands.util.manager import Manager
 import click
-from commands.util.source import Source
 from commands.util import util
-
 
 @click.command('open')
 @click.argument('identifier')
