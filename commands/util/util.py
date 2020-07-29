@@ -6,7 +6,7 @@ from datetime import datetime
 
 import click
 
-content_path = path.expanduser(path.join('~', '.remakes/'))
+content_path = path.expanduser(path.join('~', '.recakes/'))
 
 
 def conseq(cond, true, false):
@@ -71,7 +71,7 @@ def uncopy_source(src):
 def calculate_path(src):
     if path.exists(src):
         return src
-    if re.search('[.]remakes/', src):
+    if re.search('[.]recakes/', src):
         return path.expanduser(path.join('~', src))
 
     return path.join(getcwd(), src)
@@ -82,7 +82,7 @@ def file_exists(src):
 
 
 def get_jpath():
-    return path.expanduser(path.join('~', '.remakes\\remakes.json'))
+    return path.expanduser(path.join('~', '.recakes\\recakes.json'))
 
 
 def truncate(s: str, m: int):

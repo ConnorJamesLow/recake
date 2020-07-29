@@ -2,7 +2,7 @@
 import click
 from commands import add, ls, clip, copy, open, update, rm
 
-@click.version_option('0.3.0', prog_name='remake', message='%(prog)s v%(version)s')
+@click.version_option('0.3.0', prog_name='recake', message='%(prog)s v%(version)s')
 @click.group()
 def cli():
     pass

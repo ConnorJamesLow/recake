@@ -1,6 +1,6 @@
 from typing import Any, AnyStr, Callable
 import json
-from os import path
+from os import makedirs, path
 
 
 class Observer:
@@ -89,6 +89,9 @@ def subjectify(file_path: str) -> Observer:
 
 def load_or_create(file_path: str) -> dict:
     if not path.exists(file_path):
+        d = path.dirname(file_path)
+        if not path.exists(d):
+            makedirs(d)
         with open(file_path, 'w+') as file:
             json.dump({}, file)
             return {}

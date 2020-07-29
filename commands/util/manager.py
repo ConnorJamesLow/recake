@@ -39,7 +39,7 @@ class Manager:
 
     def add(self, src: str = None, name: str = None, _type: str = None):
         """
-        Create local copy of the source in the `.remakes/` cache.
+        Create local copy of the source in the `.recakes/` cache.
         """
         if not src:
             raise Exception('Must include the src parameter')
@@ -56,26 +56,26 @@ class Manager:
             raise Exception(
                 f'Cannot add source: one already exists with name "{name}".')
 
-        # Generate a record for the source and copy it to the remakes folder.
+        # Generate a record for the source and copy it to the recakes folder.
         source = {
             "id": _id,
             "name": name,
             "type": _type,
             "source": src,
-            "remake": f'.remakes/{_id}'
+            "recake": f'.recakes/{_id}'
         }
         json.sources += [source]
-        util.copy_source(src, f'.remakes/{_id}')
+        util.copy_source(src, f'.recakes/{_id}')
 
     def update(self, noi: str):
         """
-        Recopy the content from the source to the cached remake.
+        Recopy the content from the source to the cached recake.
         """
         source = self.load(noi)
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
-        util.copy_source(source["source"], source["remake"])
+        util.copy_source(source["source"], source["recake"])
 
     def clear(self, noi: str, rm: bool = False):
         """
@@ -90,7 +90,7 @@ class Manager:
                 f'Not found. "{noi}" does not match any source ids or names.')
 
         # Delete cached files
-        util.uncopy_source(source["remake"])
+        util.uncopy_source(source["recake"])
         if not rm:
             return
 
@@ -112,14 +112,14 @@ class Manager:
         source = self.load(noi)
 
         # Get the src to copy from.
-        src: str = util.conseq(no_cache, source["source"], source["remake"])
+        src: str = util.conseq(no_cache, source["source"], source["recake"])
         ours = path.expanduser(path.join('~', src))
         dest = path.join(getcwd(), dest)
 
         # Verify the src requested actually exists.
         if not path.exists(ours):
             raise Exception(
-                'Invalid source configuration. Check remakes.json for errors.')
+                'Invalid source configuration. Check recakes.json for errors.')
         util.copy_source(ours, dest)
 
     def clip(self, noi: str, no_cache: bool = False):
@@ -132,7 +132,7 @@ class Manager:
                 f'Not found. "{noi}" does not match any source ids or names.')
 
         src = util.calculate_path(util.conseq(
-            no_cache, source["source"], source["remake"]))
+            no_cache, source["source"], source["recake"]))
 
         if not util.file_exists(src):
             return False
@@ -142,8 +142,11 @@ class Manager:
 
     def ls(self, truncate: bool = False, *args):
         """
-        List remake sources.
+        List recake sources.
         """
+        if len(self.__json.sources) < 1:
+            return 'No sources'
+
         items = iter(self.__json.sources)
         rows = []
         lengths = {}
@@ -198,5 +201,5 @@ class Manager:
 
         # Find the path to the source to open.
         src = util.calculate_path(
-            util.conseq(cache, source["remake"], source["source"]))
+            util.conseq(cache, source["recake"], source["source"]))
         return click.launch(src)

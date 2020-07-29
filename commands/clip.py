@@ -7,7 +7,7 @@ import click
 @click.option(
     '--no-cache',
     is_flag=True,
-    help='Copy directly from the source instead of the saved remake.')
+    help='Copy directly from the source instead of the saved recake.')
 def command(id: str = '', no_cache: bool = False):
     """
     Copy a single-file source to the clipboard. ID can be either the name or the generated id of the source.

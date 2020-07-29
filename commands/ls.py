@@ -19,7 +19,7 @@ def command(truncate: bool, attrs):
     if '*' in attrs:
         m = Manager()
         click.echo(
-            m.ls(truncate, 'id', 'name', 'source', 'remake', 'type'))
+            m.ls(truncate, 'id', 'name', 'source', 'recake', 'type'))
         return
     click.echo(Manager().ls(truncate, *attrs))
-    # click.echo(remakes.ls(truncate))
+    # click.echo(recakes.ls(truncate))
