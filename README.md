@@ -6,10 +6,10 @@ Install recake using `pyinstaller` and saving it to a destination tracked by `$P
 
 ```bash
 # cache a source
-recake add source C:/source/project -n project
+recake add C:/source/project -n template
 
 # copy to a new destination.
-recake copy project C:/source/new-project
+recake copy template C:/source/new-project
 ```
 
 ### Commands
