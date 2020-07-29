@@ -12,8 +12,7 @@ recake add source C:/source/project -n project
 recake copy project C:/source/new-project
 ```
 
-
-## Commands
+### Commands
  - `add`: Cache code files and directories for later.
  - `clip`: Add the contents of a stored file to the clipboard.
  - `copy`: Copy a cached source to a new destination.
@@ -23,7 +22,10 @@ recake copy project C:/source/new-project
  - `update`: cache code files and directories for later.
 
 
-## Wishlist / TODO  
+## Contributing
+Feel free to tackle one of the items below, or suggest your own additions!
+
+### Wishlist / TODO  
 recake is still in early stages of development. Here are some things that could make it better:
  - [ ] Templating with variable injection.
  - [ ] Install-script and environment configuration for multi-platform support (currently only tested on Windows).
@@ -34,3 +36,9 @@ recake is still in early stages of development. Here are some things that could 
  - [x] ~~`update/delete source/clip` commands.~~ implemented as `update` and `rm`.
  - [ ] Better console messages (maybe add some color?)
  - [ ] Configure defaults (`ls --truncate`, `open --cached`, etc.)
+
+### Installation
+**Recomended**: use `pyinstaller` to create an executable:
+ 1. `pip install pyinstaller`
+ 2. `pyinstaller recake.py -F --distpath C:\PATH\aware\directory`
+ 3. `recake --version`
