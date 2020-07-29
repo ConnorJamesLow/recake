@@ -21,10 +21,10 @@ remake copy project C:/source/new-project
 ## Wishlist / TODO  
 Remake is still in early stages of development. Here are some things that could make it better:
  - [ ] Install-script and environment configuration for multi-platform support (currently only tested on Windows).
- - [ ] Separate `add clip` command that could also accept user input from the terminal.
+ - [ ] Separate command like `add` to accept user input from the terminal.
  - [ ] Templating with variable injection.
- - [ ] `list source/clip` command to see all cached items.
+ - [x] ~~`list source/clip` command to see all cached items.~~ implemented as `ls` command.
  - [ ] Ability to add internet/github sources.
  - [ ] Remake script files to run on copy and select senarios.
- - [ ] `update/delete source/clip` commands.
+ - [x] ~~`update/delete source/clip` commands.~~ implemented as `update` and `rm`.
  - [ ] Better console messages (maybe add some color?)

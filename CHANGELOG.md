@@ -2,6 +2,10 @@
 
 ## Pre-Releases:
 
+### v0.3.0
+ - `rm`, `open`, and `update` commands added.
+ - `ls` changes.
+
 ### v0.2.0
  - `ls` command. 
  - Major refactor/restructure.  
