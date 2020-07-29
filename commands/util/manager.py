@@ -65,14 +65,19 @@ class Manager:
         json.sources += [source]
         util.copy_source(src, f'.remakes/{_id}')
 
-    def update(self, noi: str): 
+    def update(self, noi: str):
         source = self.load(noi, noi)
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
         util.copy_source(source["source"], source["remake"])
 
-    def delete(self, noi: str, only_cache: bool = False):
+    def clear(self, noi: str, rm: bool = False):
+        """
+        Clear the cached source. If rm is set, also delete the record.
+        """
+        cache = self.__json.sources
+
         # Find source
         source = self.load(noi)
         if not source:
@@ -81,11 +86,15 @@ class Manager:
 
         # Delete cached files
         util.uncopy_source(source["remake"])
-        if only_cache:
+        if not rm:
             return
 
         # Remove from list TODO
-        # self.__json.sources
+        sources = enumerate(cache)
+        i = next((i for i, s in sources if s is source), None)
+
+        del cache[i]
+        self.__json.sources = cache
 
     def copy(self, dest: str, noi: str = None, no_cache: bool = False):
         """

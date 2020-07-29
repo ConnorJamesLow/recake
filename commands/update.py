@@ -5,7 +5,7 @@ from commands.util.manager import Manager
 @click.argument('name')
 def command(name: str = ''):
     """
-    Update the cached content with the source.  
+    Update the cached content from the source.  
     Reference by name or id.
     """
     m = Manager()
