@@ -15,6 +15,8 @@ class Manager:
     def load(self, noi: str = None):
         """
         Find the state of the source using the name or the id.
+
+        noi - "name or id"
         """
         json = self.__json
 
@@ -66,7 +68,10 @@ class Manager:
         util.copy_source(src, f'.remakes/{_id}')
 
     def update(self, noi: str):
-        source = self.load(noi, noi)
+        """
+        Recopy the content from the source to the cached remake.
+        """
+        source = self.load(noi)
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
@@ -106,9 +111,12 @@ class Manager:
 
         source = self.load(noi)
 
+        # Get the src to copy from.
         src: str = util.conseq(no_cache, source["source"], source["remake"])
         ours = path.expanduser(path.join('~', src))
         dest = path.join(getcwd(), dest)
+
+        # Verify the src requested actually exists.
         if not path.exists(ours):
             raise Exception(
                 'Invalid source configuration. Check remakes.json for errors.')
@@ -118,7 +126,7 @@ class Manager:
         """
         Copy source file contents to the clipboard.
         """
-        source = self.load(noi, noi)
+        source = self.load(noi)
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
@@ -140,14 +148,19 @@ class Manager:
         rows = []
         lengths = {}
 
+        # Add to list until there are no more items in the iterable.
         i = next(items, None)
         while i != None:
             dict = {}
             for p in args:
+
+                # Verify the property is present on the sources object
                 if p not in i.keys():
-                    return f'Error: "{p}" is not an attribute of $.sources.'
+                    return f'Error: "{p}" is not an attribute of $.sources[n].'
                 val = util.conseq(truncate, util.truncate(i[p], 33), i[p])
                 dict[p] = val
+
+                # Calcualte the longest value for this property.
                 if p not in lengths.keys() or len(val) > lengths[p]:
                     lengths[p] = len(val)
             rows += [dict]
@@ -155,29 +168,35 @@ class Manager:
 
         # Add headers
         res = ['']
-        res += [(' ' * 4).join(map(lambda k: k +
-                                   (' ' * (lengths[k] - len(k))), args))]
+        res += [(' ' * 4).join(
+            map(lambda k: k + (' ' * (lengths[k] - len(k))), args)
+        )]
 
         # Add divider line
-        res += [(' ' * 4).join(map(lambda k: '-' * (lengths[k]), args))]
+        res += [(' ' * 4).join(
+            map(lambda k: '-' * (lengths[k]), args)
+        )]
+
         # Add rows:
         for r in rows:
-            res += [(' ' * 4).join(map(lambda k: r[k] +
-                                       (' ' * (lengths[k] - len(r[k]))), args))]
+            res += [(' ' * 4).join(
+                map(lambda k: r[k] + (' ' * (lengths[k] - len(r[k]))), args)
+            )]
 
         return '\n'.join(res) + '\n'
 
-    def open(self, noi: str, no_cache: bool = False):
+    def open(self, noi: str, cache: bool = False):
         """
         Open a source in an editor or the fs.
 
         noi - name or id
         """
-        source = self.load(noi, noi)
+        source = self.load(noi)
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
 
+        # Find the path to the source to open.
         src = util.calculate_path(
-            util.conseq(no_cache, source["source"], source["remake"]))
+            util.conseq(cache, source["remake"], source["source"]))
         return click.launch(src)

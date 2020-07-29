@@ -5,12 +5,12 @@ from commands.util import util
 @click.command('open')
 @click.argument('identifier')
 @click.option(
-    '--no-cache',
+    '--cached',
     is_flag=True,
-    help='Opens to a source.')
-def command(identifier: str = '', no_cache: bool = False):
+    help='Open to the cached code instead of the source.')
+def command(identifier: str = '', cached: bool = False):
     """
     Open a source.
     """
-    Manager().open(identifier, no_cache)
+    Manager().open(identifier, cached)
     util.fin('Launching')
