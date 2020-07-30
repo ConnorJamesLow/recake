@@ -2,6 +2,9 @@
 
 ## Pre-Releases:
 
+### v0.4.1
+ - Fix `add` command, which I broke earlier this week.
+
 ### v0.4.0
  - Renamed the project.
 

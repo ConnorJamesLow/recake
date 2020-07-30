@@ -49,10 +49,7 @@ class Manager:
 
         # Check for existing source.
         _id = util.gen_id()
-        existing = next(
-            (s for s in enumerate(json.sources) if s["name"] == name),
-            (-1, None))
-        if existing:
+        if next((s for s in iter(json.sources) if s["name"] == name), None):
             raise Exception(
                 f'Cannot add source: one already exists with name "{name}".')
 
