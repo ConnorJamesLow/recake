@@ -1,10 +1,11 @@
 import re
-from os import path, makedirs, getcwd, remove
+import click
+from os import path, makedirs, getcwd, remove, listdir
 from shutil import copytree, copy2 as copy_file, rmtree
 from random import randint
 from datetime import datetime
-
-import click
+from fnmatch import fnmatch
+from typing import Iterable
 
 content_path = path.expanduser(path.join('~', '.recakes/'))
 
@@ -40,16 +41,20 @@ def gen_id() -> str:
     return res
 
 
-def copy_source(src, dest):
+def copy_source(src, dest, overwrite: bool = False):
     """
     Copy content from src to dest folder.
     """
+    src = calculate_path(src)
     print(f'copy_source: {src} -> {dest}')
     dest = path.expanduser(path.join('~', dest))
     if path.isdir(src):
+        if overwrite:
+            uncopy_source(dest)
         if path.exists(dest):
             raise Exception('Could not copy. Please try again.')
-        copytree(src, dest)
+        p = copytree(src, dest)
+        print(p)
     elif path.isfile(src):
         content_path = path.dirname(src)
         if not path.exists(content_path):
@@ -57,20 +62,22 @@ def copy_source(src, dest):
         p = copy_file(src, dest)
         print(p)
 
+
 def uncopy_source(src):
     src = calculate_path(src)
     if not path.exists(src):
         raise Exception(
             f'Not found. "{src}" is not a valid path.')
-    
+
     if path.isfile(src):
         remove(src)
     else:
-        rmtree(src, ignore_errors = True)
+        rmtree(src, ignore_errors=True)
+
 
 def calculate_path(src):
     if path.exists(src):
-        return src
+        return path.abspath(src)
     if re.search('[.]recakes/', src):
         return path.expanduser(path.join('~', src))
 
@@ -94,12 +101,66 @@ def truncate(s: str, m: int):
 
     return f'{s[:(m - 25)]}...{s[(len(s) - 22):]}'
 
+
 def fin(message):
     click.secho(message + '\n', fg="green")
+
 
 def err(message):
     click.secho(message + '\n', fg="red")
 
+
 def warn(message):
     click.secho(message + '\n', fg="yellow")
 
+
+def get_lines(file: str):
+    with open(file, 'a+') as f:
+        f.seek(0)
+        lines = f.readlines()
+    return lines
+
+
+def glob_copy(source: str, destination: str, exclude: Iterable):
+    """
+    Copy `source` to `destination`, excluding items in the source which match any of `exclude`.
+    """
+    exclude = list(exclude)
+    print(f'source: "{source}", dest: "{destination}"')
+    if not path.exists(source):
+        raise Exception(f'Source "{source}" not found.')
+    def recurse(p: str):
+        # print(f'try: "{p}"')
+        full = path.abspath(p)
+        # print(f'  full: "{full}"')
+        rel = full[(full.index(p)):]
+        # print(f'  rel: "{rel}" ({rel.strip("/")})')
+        reason = next(
+            (e for e in exclude if (fnmatch(rel.strip('/'), e.strip('/')))),
+            None
+        )
+        for e in exclude:
+            if not re.match(r'^[/\\]', e):
+                e = path.join('**', e)
+            if fnmatch(rel.strip('/'), e.strip('/')):
+                reason = e
+        if reason and (not(reason.endswith('/')) or path.isdir(reason)):
+            print('EXCLUDE', full, f'(re: "{reason}")')
+            return
+        if path.isdir(full):
+            for d in listdir(full):
+                recurse(path.join(full, d))
+        else:
+            pass
+            # print('  +', rel)
+    
+    # dirs first:
+    for d in listdir(source):
+        recurse(d)
+
+
+def test():
+    glob_copy(
+        path.abspath('.'),
+        '',
+        (l.strip('\n') for l in get_lines('test') if re.match(r'^[^#\s]', l)))

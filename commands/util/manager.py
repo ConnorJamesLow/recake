@@ -1,3 +1,4 @@
+from commands.util.util import ensure_attr
 import click
 from os import getcwd, path
 from commands.util import util
@@ -58,7 +59,7 @@ class Manager:
             "id": _id,
             "name": name,
             "type": _type,
-            "source": src,
+            "source": util.calculate_path(src),
             "recake": f'.recakes/{_id}'
         }
         json.sources += [source]
@@ -200,3 +201,18 @@ class Manager:
         src = util.calculate_path(
             util.conseq(cache, source["recake"], source["source"]))
         return click.launch(src)
+
+    def load_ignore(self):
+        """
+        Create the ignore file if necessary
+        """
+        if not path.exists(self.__json.ignore):
+            default_filename = '.reignore'
+            ensure_attr(self.__json, 'ignores', default_filename)
+            ignores = self.json.ignore
+
+
+    def add_ignore(self, line):
+        """
+
+        """
