@@ -1,7 +1,7 @@
 import re
 import click
 from os import path, makedirs, getcwd, remove, listdir
-from shutil import copytree, copy2 as copy_file, rmtree
+from shutil import copy, copytree, copy2 as copy_file, rmtree
 from random import randint
 from datetime import datetime
 from fnmatch import fnmatch
@@ -68,7 +68,6 @@ def uncopy_source(src):
     if not path.exists(src):
         raise Exception(
             f'Not found. "{src}" is not a valid path.')
-
     if path.isfile(src):
         remove(src)
     else:
@@ -80,7 +79,6 @@ def calculate_path(src):
         return path.abspath(src)
     if re.search('[.]recakes/', src):
         return path.expanduser(path.join('~', src))
-
     return path.join(getcwd(), src)
 
 
@@ -95,10 +93,8 @@ def get_jpath():
 def truncate(s: str, m: int):
     if len(s) < m:
         return s
-
     if m < 25:
         return f'...{s[:(m - 3)]}'
-
     return f'{s[:(m - 25)]}...{s[(len(s) - 22):]}'
 
 
@@ -121,6 +117,17 @@ def get_lines(file: str):
     return lines
 
 
+def fsitem_type(p):
+    """Get an item from file-system and determine what it is (`dir` or `file`.)"""
+    if path.isfile(p):
+        return 'file'
+    if path.isdir(p):
+        return 'dir'
+    if path.islink(p):
+        return 'link'
+    return 'unknown'
+
+
 def glob_copy(source: str, destination: str, exclude: Iterable):
     """
     Copy `source` to `destination`, excluding items in the source which match any of `exclude`.
@@ -129,38 +136,36 @@ def glob_copy(source: str, destination: str, exclude: Iterable):
     print(f'source: "{source}", dest: "{destination}"')
     if not path.exists(source):
         raise Exception(f'Source "{source}" not found.')
+
     def recurse(p: str):
         # print(f'try: "{p}"')
         full = path.abspath(p)
         # print(f'  full: "{full}"')
-        rel = full[(full.index(p)):]
+        rel = re.sub(r'^[\\/]|[\\/]$', '', full[len(source):])
+        copy_path = path.join(destination, rel)
         # print(f'  rel: "{rel}" ({rel.strip("/")})')
         reason = next(
             (e for e in exclude if (fnmatch(rel.strip('/'), e.strip('/')))),
             None
         )
         for e in exclude:
-            if not re.match(r'^[/\\]', e):
+            if not re.match(r'^\.?[/\\]', e):
                 e = path.join('**', e)
-            if fnmatch(rel.strip('/'), e.strip('/')):
+            if fnmatch(rel.strip('/').strip('\\'), e.strip('/').strip('\\')):
                 reason = e
-        if reason and (not(reason.endswith('/')) or path.isdir(reason)):
+        if reason and (not(reason.endswith('/')) or path.isdir(full)):
             print('EXCLUDE', full, f'(re: "{reason}")')
             return
+        print(
+            f' + ({rel}) \n\tcopy {fsitem_type(full)} \n\t\t"{full}" \n\tto \n\t\t"{copy_path}"')
         if path.isdir(full):
+            makedirs(copy_path)
             for d in listdir(full):
                 recurse(path.join(full, d))
-        else:
+        elif path.isfile(full):
             pass
-            # print('  +', rel)
-    
-    # dirs first:
+            copy_file(full, copy_path)
+    # top-level content:
+    makedirs(destination)
     for d in listdir(source):
         recurse(d)
-
-
-def test():
-    glob_copy(
-        path.abspath('.'),
-        '',
-        (l.strip('\n') for l in get_lines('test') if re.match(r'^[^#\s]', l)))
