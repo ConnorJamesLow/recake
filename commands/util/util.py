@@ -46,8 +46,8 @@ def copy_source(src, dest, overwrite: bool = False):
     Copy content from src to dest folder.
     """
     src = calculate_path(src)
+    dest = calculate_path(dest)
     print(f'copy_source: {src} -> {dest}')
-    dest = path.expanduser(path.join('~', dest))
     if path.isdir(src):
         if overwrite:
             uncopy_source(dest)
@@ -136,7 +136,6 @@ def glob_copy(source: str, destination: str, exclude: Iterable):
     print(f'source: "{source}", dest: "{destination}"')
     if not path.exists(source):
         raise Exception(f'Source "{source}" not found.')
-
     def recurse(p: str):
         # print(f'try: "{p}"')
         full = path.abspath(p)
@@ -169,3 +168,12 @@ def glob_copy(source: str, destination: str, exclude: Iterable):
     makedirs(destination)
     for d in listdir(source):
         recurse(d)
+
+def test():
+    dest = path.abspath('../__test')
+    if path.exists(dest):
+        rmtree(dest)
+    glob_copy(
+        path.abspath('.'),
+        dest,
+        (l.strip('\n') for l in get_lines('test') if re.match(r'^[^#\s]', l)))

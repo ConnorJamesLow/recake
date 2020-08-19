@@ -73,7 +73,7 @@ class Manager:
         if not source:
             raise Exception(
                 f'Not found. "{noi}" does not match any source ids or names.')
-        util.copy_source(source["source"], source["recake"])
+        util.copy_source(source["source"], source["recake"], True)
 
     def clear(self, noi: str, rm: bool = False):
         """
