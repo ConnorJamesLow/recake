@@ -6,10 +6,10 @@ Install recake using `pyinstaller` and saving it to a destination tracked by `$P
 
 ```bash
 # cache a source
-recake add C:/source/project -n template
+recake add C:/source/project -n 'template'
 
 # copy to a new destination.
-recake copy template C:/source/new-project
+recake copy 'template' C:/source/new-project
 ```
 
 ### Commands
@@ -40,5 +40,6 @@ recake is still in early stages of development. Here are some things that could 
 ### Installation
 **Recomended**: use `pyinstaller` to create an executable:
  1. `pip install pyinstaller`
- 2. `pyinstaller recake.py -F --distpath C:\PATH\aware\directory`
- 3. `recake --version`
+ 2. `pyinstaller recake.py --distpath C:\PATH\aware\directory`
+ 3. Create a batch file pointing to the executable
+ 4. `recake --version`
